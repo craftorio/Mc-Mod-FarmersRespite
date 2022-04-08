@@ -1,10 +1,13 @@
 package com.farmersrespite.core.registry;
 
+import java.util.List;
+
 import com.farmersrespite.common.levelgen.feature.CoffeeBushFeature;
 import com.farmersrespite.common.levelgen.feature.WildTeaBushFeature;
 import com.farmersrespite.core.FRConfiguration;
 import com.farmersrespite.core.FarmersRespite;
 
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
@@ -16,9 +19,9 @@ import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConf
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.placement.BiomeFilter;
-import net.minecraft.world.level.levelgen.placement.CountPlacement;
 import net.minecraft.world.level.levelgen.placement.InSquarePlacement;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
+import net.minecraft.world.level.levelgen.placement.PlacementModifier;
 import net.minecraft.world.level.levelgen.placement.RarityFilter;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -33,24 +36,28 @@ public class FRBiomeFeatures {
 
 	public static final class FarmersRespiteConfiguredFeatures {
 
-		public static final ConfiguredFeature<?, ?> PATCH_WILD_TEA_BUSH = register("patch_wild_tea_bush", Feature.SIMPLE_BLOCK.configured(new SimpleBlockConfiguration(BlockStateProvider.simple(FRBlocks.WILD_TEA_BUSH.get().defaultBlockState()))));
-		public static final ConfiguredFeature<?, ?> PATCH_COFFEE_BUSH = register("patch_coffee_bush", FRBiomeFeatures.COFFEE_BUSH.get().configured(FeatureConfiguration.NONE));
+		public static final Holder<ConfiguredFeature<SimpleBlockConfiguration, ?>> PATCH_WILD_TEA_BUSH = register(new ResourceLocation(FarmersRespite.MODID, "patch_wild_tea_bush"),
+				Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(BlockStateProvider.simple(FRBlocks.WILD_TEA_BUSH.get().defaultBlockState())));
+		public static final Holder<ConfiguredFeature<NoneFeatureConfiguration, ?>> PATCH_COFFEE_BUSH = register(new ResourceLocation(FarmersRespite.MODID, "patch_coffee_bush"),
+				FRBiomeFeatures.COFFEE_BUSH.get(), (FeatureConfiguration.NONE));
 				
-		private static <FC extends FeatureConfiguration> ConfiguredFeature<FC, ?> register(String name, ConfiguredFeature<FC, ?> configuredFeature) {
-			return Registry.register(BuiltinRegistries.CONFIGURED_FEATURE, new ResourceLocation(FarmersRespite.MODID, name), configuredFeature);
+		static Holder<PlacedFeature> registerPlacement(ResourceLocation id, Holder<? extends ConfiguredFeature<?, ?>> feature, PlacementModifier... modifiers) {
+			return BuiltinRegistries.register(BuiltinRegistries.PLACED_FEATURE, id, new PlacedFeature(Holder.hackyErase(feature), List.of(modifiers)));
 		}
-	}
+		protected static <FC extends FeatureConfiguration, F extends Feature<FC>> Holder<ConfiguredFeature<FC, ?>> register(ResourceLocation id, F feature, FC featureConfig) {
+			return register(BuiltinRegistries.CONFIGURED_FEATURE, id, new ConfiguredFeature<>(feature, featureConfig));
+		}
+		private static <V extends T, T> Holder<V> register(Registry<T> registry, ResourceLocation id, V value) {
+			return (Holder<V>) BuiltinRegistries.<T>register(registry, id, value);
+		}
+
 	
 	
 	public static final class FarmersRespitePlacedFeatures {
-		static int teaChance = FRConfiguration.CHANCE_TEA_BUSH.get() - 9;
-		static int coffeeChance = FRConfiguration.CHANCE_COFFEE_BUSH.get() - 9;
-		public static final PlacedFeature PATCH_WILD_TEA_BUSH = register("patch_wild_tea_bush", FarmersRespiteConfiguredFeatures.PATCH_WILD_TEA_BUSH.placed(RarityFilter.onAverageOnceEvery(20 - FRConfiguration.CHANCE_TEA_BUSH.get()), InSquarePlacement.spread(), PlacementUtils.HEIGHTMAP_WORLD_SURFACE, BiomeFilter.biome()));
-		public static final PlacedFeature PATCH_COFFEE_BUSH = register("patch_coffee_bush", FarmersRespiteConfiguredFeatures.PATCH_COFFEE_BUSH.placed(CountPlacement.of(FRConfiguration.CHANCE_COFFEE_BUSH.get()), InSquarePlacement.spread(), PlacementUtils.FULL_RANGE, BiomeFilter.biome()));
-
-		
-		public static PlacedFeature register(String name, PlacedFeature placedFeature) {
-			return Registry.register(BuiltinRegistries.PLACED_FEATURE, new ResourceLocation(FarmersRespite.MODID, name), placedFeature);
-		}
+		public static final Holder<PlacedFeature> PATCH_WILD_TEA_BUSH = registerPlacement(new ResourceLocation(FarmersRespite.MODID, "patch_wild_tea_bush"),
+				FarmersRespiteConfiguredFeatures.PATCH_WILD_TEA_BUSH, RarityFilter.onAverageOnceEvery(1), InSquarePlacement.spread(), PlacementUtils.HEIGHTMAP, BiomeFilter.biome());
+		public static final Holder<PlacedFeature> PATCH_COFFEE_BUSH = registerPlacement(new ResourceLocation(FarmersRespite.MODID, "patch_coffee_bush"),
+				FarmersRespiteConfiguredFeatures.PATCH_COFFEE_BUSH, RarityFilter.onAverageOnceEvery(1), InSquarePlacement.spread(), PlacementUtils.FULL_RANGE, BiomeFilter.biome());
+		}	
 	}
 }

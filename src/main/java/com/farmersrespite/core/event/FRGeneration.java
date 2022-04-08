@@ -2,9 +2,8 @@ package com.farmersrespite.core.event;
 
 import com.farmersrespite.core.FRConfiguration;
 import com.farmersrespite.core.FarmersRespite;
-import com.farmersrespite.core.registry.FRBiomeFeatures.FarmersRespitePlacedFeatures;
+import com.farmersrespite.core.registry.FRBiomeFeatures.FarmersRespiteConfiguredFeatures.FarmersRespitePlacedFeatures;
 
-import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.biome.Biome;
@@ -13,7 +12,6 @@ import net.minecraftforge.common.world.BiomeGenerationSettingsBuilder;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import vectorwing.farmersdelight.common.world.WildCropGeneration;
 
 @Mod.EventBusSubscriber(modid = FarmersRespite.MODID)
 public class FRGeneration
