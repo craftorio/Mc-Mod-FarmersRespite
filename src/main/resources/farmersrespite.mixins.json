@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "com.farmersrespite.core.mixin",
+  "compatibilityLevel": "JAVA_16",
+  "refmap": "farmersrespite.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8"
+}
