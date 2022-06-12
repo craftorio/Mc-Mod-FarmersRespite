@@ -7,6 +7,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -20,9 +21,11 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.items.wrapper.RecipeWrapper;
 import net.minecraftforge.registries.ForgeRegistryEntry;
+import org.jetbrains.annotations.NotNull;
 
-public class KettleRecipe implements Recipe<RecipeWrapper>
-{
+@MethodsReturnNonnullByDefault
+public class KettleRecipe implements Recipe<RecipeWrapper> {
+
 	public static RecipeType<KettleRecipe> TYPE = RecipeType.register(FarmersRespite.MODID + ":brewing");
 	public static final Serializer SERIALIZER = new Serializer();
 	public static final int INPUT_SLOTS = 2;
@@ -81,7 +84,12 @@ public class KettleRecipe implements Recipe<RecipeWrapper>
 	}
 
 	@Override
-	public ItemStack assemble(RecipeWrapper inv) {
+	public boolean isSpecial() {
+		return true;
+	}
+
+	@Override
+	public ItemStack assemble(@NotNull RecipeWrapper inv) {
 		return this.output.copy();
 	}
 
@@ -98,7 +106,7 @@ public class KettleRecipe implements Recipe<RecipeWrapper>
 	}
 
 	@Override
-	public boolean matches(RecipeWrapper inv, Level worldIn) {
+	public boolean matches(@NotNull RecipeWrapper inv, @NotNull Level worldIn) {
 		java.util.List<ItemStack> inputs = new java.util.ArrayList<>();
 		int i = 0;
 
@@ -134,7 +142,7 @@ public class KettleRecipe implements Recipe<RecipeWrapper>
 		}
 
 		@Override
-		public KettleRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
+		public KettleRecipe fromJson(@NotNull ResourceLocation recipeId, @NotNull JsonObject json) {
 			final String groupIn = GsonHelper.getAsString(json, "group", "");
 			final NonNullList<Ingredient> inputItemsIn = readIngredients(GsonHelper.getAsJsonArray(json, "ingredients"));
 			if (inputItemsIn.isEmpty()) {
@@ -152,21 +160,21 @@ public class KettleRecipe implements Recipe<RecipeWrapper>
 		}
 
 		private static NonNullList<Ingredient> readIngredients(JsonArray ingredientArray) {
-			NonNullList<Ingredient> nonnulllist = NonNullList.create();
+			NonNullList<Ingredient> nonNullList = NonNullList.create();
 
 			for (int i = 0; i < ingredientArray.size(); ++i) {
 				Ingredient ingredient = Ingredient.fromJson(ingredientArray.get(i));
 				if (!ingredient.isEmpty()) {
-					nonnulllist.add(ingredient);
+					nonNullList.add(ingredient);
 				}
 			}
 
-			return nonnulllist;
+			return nonNullList;
 		}
 
 		@Nullable
 		@Override
-		public KettleRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
+		public KettleRecipe fromNetwork(@NotNull ResourceLocation recipeId, FriendlyByteBuf buffer) {
 			String groupIn = buffer.readUtf(32767);
 			int i = buffer.readVarInt();
 			NonNullList<Ingredient> inputItemsIn = NonNullList.withSize(i, Ingredient.EMPTY);
@@ -179,7 +187,7 @@ public class KettleRecipe implements Recipe<RecipeWrapper>
 			ItemStack container = buffer.readItem();
 			float experienceIn = buffer.readFloat();
 			int brewTimeIn = buffer.readVarInt();
-			Boolean needWaterIn = buffer.readBoolean();
+			boolean needWaterIn = buffer.readBoolean();
 			return new KettleRecipe(recipeId, groupIn, inputItemsIn, outputIn, container, experienceIn, brewTimeIn, needWaterIn);
 		}
 
