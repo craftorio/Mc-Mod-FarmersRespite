@@ -38,8 +38,6 @@ public class FRBlocks
 
 	// Workstations
 	public static final RegistryObject<Block> KETTLE = BLOCKS.register("kettle", KettleBlock::new);
-	public static final RegistryObject<Block> KETTLET = BLOCKS.register("kettlet", KettleBlock::new);
-
 
 	//Tea
 	public static final RegistryObject<Block> TEA_BUSH = BLOCKS.register("tea_bush", () -> new TeaBushBlock(Block.Properties.of(Material.PLANT).instabreak().sound(SoundType.GRASS).noOcclusion()));
