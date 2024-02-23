@@ -1,16 +1,15 @@
 package com.farmersrespite.integration.jei.category;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.farmersrespite.common.crafting.KettleRecipe;
-import com.farmersrespite.core.FarmersRespite;
 import com.farmersrespite.core.registry.FRItems;
 import com.farmersrespite.core.utility.FRTextUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.IRecipeLayout;
@@ -26,101 +25,104 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.ItemLike;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class BrewingRecipeCategory implements IRecipeCategory<KettleRecipe>
-{
-	public static final ResourceLocation UID = new ResourceLocation(FarmersRespite.MODID, "brewing");
-	protected final IDrawable heatIndicator;
-	protected final IDrawable waterBar;
-	protected final IDrawableAnimated arrow;
-	private final Component title;
-	private final IDrawable background;
-	private final IDrawable icon;
+public class BrewingRecipeCategory
+        implements IRecipeCategory<KettleRecipe> {
+    public static final ResourceLocation UID = new ResourceLocation("farmersrespite", "brewing");
 
-	public BrewingRecipeCategory(IGuiHelper helper) {
-		title = FRTextUtils.getTranslation("jei.brewing");
-		ResourceLocation backgroundImage = new ResourceLocation(FarmersRespite.MODID, "textures/gui/jei/kettle_jei.png");
-		background = helper.createDrawable(backgroundImage, 29, 16, 117, 57);
-		icon = helper.createDrawableIngredient(new ItemStack(FRItems.KETTLE.get()));
-		heatIndicator = helper.createDrawable(backgroundImage, 176, 0, 17, 15);
-		arrow = helper.drawableBuilder(backgroundImage, 176, 15, 40, 17)
-				.buildAnimated(2400, IDrawableAnimated.StartDirection.LEFT, false);
-		waterBar = helper.createDrawable(backgroundImage, 176, 32, 5, 9);
-	}
 
-	@Override
-	public ResourceLocation getUid() {
-		return UID;
-	}
+    protected final IDrawable heatIndicator;
 
-	@Override
-	public Class<? extends KettleRecipe> getRecipeClass() {
-		return KettleRecipe.class;
-	}
+    protected final IDrawable waterBar;
 
-	@Override
-	public Component getTitle() {
-		return this.title;
-	}
+    protected final IDrawableAnimated arrow;
 
-	@Override
-	public IDrawable getBackground() {
-		return this.background;
-	}
+    private final Component title = FRTextUtils.getTranslation("jei.brewing", new Object[0]);
+    private final IDrawable background;
+    private final IDrawable icon;
 
-	@Override
-	public IDrawable getIcon() {
-		return this.icon;
-	}
+    public BrewingRecipeCategory(IGuiHelper helper) {
+        ResourceLocation backgroundImage = new ResourceLocation("farmersrespite", "textures/gui/jei/kettle_jei.png");
+        this.background = helper.createDrawable(backgroundImage, 29, 16, 117, 57);
+        this.icon = helper.createDrawableIngredient(new ItemStack(FRItems.KETTLE.get()));
+        this.heatIndicator = helper.createDrawable(backgroundImage, 176, 0, 17, 15);
+        this
+                .arrow = helper.drawableBuilder(backgroundImage, 176, 15, 40, 17).buildAnimated(2400, IDrawableAnimated.StartDirection.LEFT, false);
+        this.waterBar = helper.createDrawable(backgroundImage, 176, 32, 5, 9);
+    }
 
-	@Override
-	public void setIngredients(KettleRecipe cookingPotRecipe, IIngredients ingredients) {
-		List<Ingredient> inputAndContainer = new ArrayList<>(cookingPotRecipe.getIngredients());
-		inputAndContainer.add(Ingredient.of(cookingPotRecipe.getOutputContainer()));
+    public ResourceLocation getUid() {
+        return UID;
+    }
 
-		ingredients.setInputIngredients(inputAndContainer);
-		ingredients.setOutput(VanillaTypes.ITEM, cookingPotRecipe.getResultItem());
-	}
 
-	@Override
-	public void setRecipe(IRecipeLayout recipeLayout, KettleRecipe recipe, IIngredients ingredients) {
-		final int MEAL_DISPLAY = 2;
-		final int CONTAINER_INPUT = 3;
-		final int OUTPUT = 4;
-		IGuiItemStackGroup itemStacks = recipeLayout.getItemStacks();
-		NonNullList<Ingredient> recipeIngredients = recipe.getIngredients();
+    public Class<? extends KettleRecipe> getRecipeClass() {
+        return KettleRecipe.class;
+    }
 
-		int borderSlotSize = 18;
-		for (int row = 0; row < 2; ++row) {
-			for (int column = 0; column < 1; ++column) {
-				int inputIndex = row * 1 + column;
-				if (inputIndex < recipeIngredients.size()) {
-					itemStacks.init(inputIndex, true, column * borderSlotSize + 12, row * borderSlotSize);
-					itemStacks.set(inputIndex, Arrays.asList(recipeIngredients.get(inputIndex).getItems()));
-				}
-			}
-		}
 
-		itemStacks.init(MEAL_DISPLAY, false, 88, 9);
-		itemStacks.set(MEAL_DISPLAY, recipe.getResultItem());
+    public Component getTitle() {
+        return this.title;
+    }
 
-		if (!recipe.getOutputContainer().isEmpty()) {
-			itemStacks.init(CONTAINER_INPUT, false, 56, 38);
-			itemStacks.set(CONTAINER_INPUT, recipe.getOutputContainer());
-		}
 
-		itemStacks.init(OUTPUT, false, 88, 38);
-		itemStacks.set(OUTPUT, recipe.getResultItem());
-	}
+    public IDrawable getBackground() {
+        return this.background;
+    }
 
-	@Override
-	public void draw(KettleRecipe recipe, PoseStack matrixStack, double mouseX, double mouseY) {
-		arrow.draw(matrixStack, 33, 9);
-		heatIndicator.draw(matrixStack, 13, 40);
-		if (recipe.getNeedWater()) {
-			waterBar.draw(matrixStack, 5, 25);
-		}
-	}
+
+    public IDrawable getIcon() {
+        return this.icon;
+    }
+
+
+    public void setIngredients(KettleRecipe cookingPotRecipe, IIngredients ingredients) {
+        List<Ingredient> inputAndContainer = new ArrayList<>(cookingPotRecipe.getIngredients());
+        inputAndContainer.add(Ingredient.of(cookingPotRecipe.getOutputContainer()));
+
+        ingredients.setInputIngredients(inputAndContainer);
+        ingredients.setOutput(VanillaTypes.ITEM, cookingPotRecipe.getResultItem());
+    }
+
+
+    public void setRecipe(IRecipeLayout recipeLayout, KettleRecipe recipe, IIngredients ingredients) {
+        int MEAL_DISPLAY = 2;
+        int CONTAINER_INPUT = 3;
+        int OUTPUT = 4;
+        IGuiItemStackGroup itemStacks = recipeLayout.getItemStacks();
+        NonNullList<Ingredient> recipeIngredients = recipe.getIngredients();
+
+        int borderSlotSize = 18;
+        for (int row = 0; row < 2; row++) {
+            for (int column = 0; column < 1; column++) {
+                int inputIndex = row + column;
+                if (inputIndex < recipeIngredients.size()) {
+                    itemStacks.init(inputIndex, true, column * borderSlotSize + 12, row * borderSlotSize);
+                    itemStacks.set(inputIndex, Arrays.asList(recipeIngredients.get(inputIndex).getItems()));
+                }
+            }
+        }
+
+        itemStacks.init(2, false, 88, 9);
+        itemStacks.set(2, recipe.getResultItem());
+
+        if (!recipe.getOutputContainer().isEmpty()) {
+            itemStacks.init(3, false, 56, 38);
+            itemStacks.set(3, recipe.getOutputContainer());
+        }
+
+        itemStacks.init(4, false, 88, 38);
+        itemStacks.set(4, recipe.getResultItem());
+    }
+
+
+    public void draw(KettleRecipe recipe, PoseStack matrixStack, double mouseX, double mouseY) {
+        this.arrow.draw(matrixStack, 33, 9);
+        this.heatIndicator.draw(matrixStack, 13, 40);
+        if (recipe.getNeedWater())
+            this.waterBar.draw(matrixStack, 5, 25);
+    }
 }

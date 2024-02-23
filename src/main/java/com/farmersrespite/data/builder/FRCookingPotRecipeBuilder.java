@@ -1,15 +1,14 @@
 package com.farmersrespite.data.builder;
 
-import java.util.List;
-import java.util.function.Consumer;
-
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import com.farmersrespite.core.FarmersRespite;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
+import java.util.List;
+import java.util.function.Consumer;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import mezz.jei.api.MethodsReturnNonnullByDefault;
 import net.minecraft.data.recipes.FinishedRecipe;
@@ -24,142 +23,140 @@ import vectorwing.farmersdelight.common.crafting.CookingPotRecipe;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class FRCookingPotRecipeBuilder
-{
-	private final List<Ingredient> ingredients = Lists.newArrayList();
-	private final Item result;
-	private final int count;
-	private final int cookingTime;
-	private final float experience;
-	private final Item container;
+public class FRCookingPotRecipeBuilder {
+    private final List<Ingredient> ingredients = Lists.newArrayList();
+    private final Item result;
+    private final int count;
+    private final int cookingTime;
+    private final float experience;
+    private final Item container;
 
-	private FRCookingPotRecipeBuilder(ItemLike resultIn, int count, int cookingTime, float experience, @Nullable ItemLike container) {
-		this.result = resultIn.asItem();
-		this.count = count;
-		this.cookingTime = cookingTime;
-		this.experience = experience;
-		this.container = container != null ? container.asItem() : null;
-	}
+    private FRCookingPotRecipeBuilder(ItemLike resultIn, int count, int cookingTime, float experience, @Nullable ItemLike container) {
+        this.result = resultIn.asItem();
+        this.count = count;
+        this.cookingTime = cookingTime;
+        this.experience = experience;
+        this.container = (container != null) ? container.asItem() : null;
+    }
 
-	public static FRCookingPotRecipeBuilder cookingPotRecipe(ItemLike mainResult, int count, int cookingTime, float experience) {
-		return new FRCookingPotRecipeBuilder(mainResult, count, cookingTime, experience, null);
-	}
+    public static FRCookingPotRecipeBuilder cookingPotRecipe(ItemLike mainResult, int count, int cookingTime, float experience) {
+        return new FRCookingPotRecipeBuilder(mainResult, count, cookingTime, experience, null);
+    }
 
-	public static FRCookingPotRecipeBuilder cookingPotRecipe(ItemLike mainResult, int count, int cookingTime, float experience, ItemLike container) {
-		return new FRCookingPotRecipeBuilder(mainResult, count, cookingTime, experience, container);
-	}
+    public static FRCookingPotRecipeBuilder cookingPotRecipe(ItemLike mainResult, int count, int cookingTime, float experience, ItemLike container) {
+        return new FRCookingPotRecipeBuilder(mainResult, count, cookingTime, experience, container);
+    }
 
-	public FRCookingPotRecipeBuilder addIngredient(TagKey<Item> tagIn) {
-		return this.addIngredient(Ingredient.of(tagIn));
-	}
+    public FRCookingPotRecipeBuilder addIngredient(TagKey<Item> tagIn) {
+        return addIngredient(Ingredient.of(tagIn));
+    }
 
-	public FRCookingPotRecipeBuilder addIngredient(ItemLike itemIn) {
-		return this.addIngredient(itemIn, 1);
-	}
+    public FRCookingPotRecipeBuilder addIngredient(ItemLike itemIn) {
+        return addIngredient(itemIn, 1);
+    }
 
-	public FRCookingPotRecipeBuilder addIngredient(ItemLike itemIn, int quantity) {
-		for (int i = 0; i < quantity; ++i) {
-			this.addIngredient(Ingredient.of(itemIn));
-		}
-		return this;
-	}
+    public FRCookingPotRecipeBuilder addIngredient(ItemLike itemIn, int quantity) {
+        for (int i = 0; i < quantity; i++) {
+            addIngredient(Ingredient.of(itemIn));
+        }
+        return this;
+    }
 
-	public FRCookingPotRecipeBuilder addIngredient(Ingredient ingredientIn) {
-		return this.addIngredient(ingredientIn, 1);
-	}
+    public FRCookingPotRecipeBuilder addIngredient(Ingredient ingredientIn) {
+        return addIngredient(ingredientIn, 1);
+    }
 
-	public FRCookingPotRecipeBuilder addIngredient(Ingredient ingredientIn, int quantity) {
-		for (int i = 0; i < quantity; ++i) {
-			this.ingredients.add(ingredientIn);
-		}
-		return this;
-	}
+    public FRCookingPotRecipeBuilder addIngredient(Ingredient ingredientIn, int quantity) {
+        for (int i = 0; i < quantity; i++) {
+            this.ingredients.add(ingredientIn);
+        }
+        return this;
+    }
 
-	public void build(Consumer<FinishedRecipe> consumerIn) {
-		ResourceLocation location = ForgeRegistries.ITEMS.getKey(this.result);
-		this.build(consumerIn, FarmersRespite.MODID + ":cooking/" + location.getPath());
-	}
+    public void build(Consumer<FinishedRecipe> consumerIn) {
+        ResourceLocation location = ForgeRegistries.ITEMS.getKey(this.result);
+        build(consumerIn, "farmersrespite:cooking/" + location.getPath());
+    }
 
-	public void build(Consumer<FinishedRecipe> consumerIn, String save) {
-		ResourceLocation resourcelocation = ForgeRegistries.ITEMS.getKey(this.result);
-		if ((new ResourceLocation(save)).equals(resourcelocation)) {
-			throw new IllegalStateException("Cooking Recipe " + save + " should remove its 'save' argument");
-		} else {
-			this.build(consumerIn, new ResourceLocation(save));
-		}
-	}
+    public void build(Consumer<FinishedRecipe> consumerIn, String save) {
+        ResourceLocation resourcelocation = ForgeRegistries.ITEMS.getKey(this.result);
+        if ((new ResourceLocation(save)).equals(resourcelocation)) {
+            throw new IllegalStateException("Cooking Recipe " + save + " should remove its 'save' argument");
+        }
+        build(consumerIn, new ResourceLocation(save));
+    }
 
-	public void build(Consumer<FinishedRecipe> consumerIn, ResourceLocation id) {
-		consumerIn.accept(new FRCookingPotRecipeBuilder.Result(id, this.result, this.count, this.ingredients, this.cookingTime, this.experience, this.container));
-	}
 
-	public static class Result implements FinishedRecipe
-	{
-		private final ResourceLocation id;
-		private final List<Ingredient> ingredients;
-		private final Item result;
-		private final int count;
-		private final int cookingTime;
-		private final float experience;
-		private final Item container;
+    public void build(Consumer<FinishedRecipe> consumerIn, ResourceLocation id) {
+        consumerIn.accept(new Result(id, this.result, this.count, this.ingredients, this.cookingTime, this.experience, this.container));
+    }
 
-		public Result(ResourceLocation idIn, Item resultIn, int countIn, List<Ingredient> ingredientsIn, int cookingTimeIn, float experienceIn, @Nullable Item containerIn) {
-			this.id = idIn;
-			this.ingredients = ingredientsIn;
-			this.result = resultIn;
-			this.count = countIn;
-			this.cookingTime = cookingTimeIn;
-			this.experience = experienceIn;
-			this.container = containerIn;
-		}
+    public static class Result implements FinishedRecipe {
+        private final ResourceLocation id;
+        private final List<Ingredient> ingredients;
+        private final Item result;
+        private final int count;
+        private final int cookingTime;
+        private final float experience;
+        private final Item container;
 
-		@Override
-		public void serializeRecipeData(JsonObject json) {
-			JsonArray arrayIngredients = new JsonArray();
+        public Result(ResourceLocation idIn, Item resultIn, int countIn, List<Ingredient> ingredientsIn, int cookingTimeIn, float experienceIn, @Nullable Item containerIn) {
+            this.id = idIn;
+            this.ingredients = ingredientsIn;
+            this.result = resultIn;
+            this.count = countIn;
+            this.cookingTime = cookingTimeIn;
+            this.experience = experienceIn;
+            this.container = containerIn;
+        }
 
-			for (Ingredient ingredient : this.ingredients) {
-				arrayIngredients.add(ingredient.toJson());
-			}
-			json.add("ingredients", arrayIngredients);
+        @Override
+        public void serializeRecipeData(JsonObject json) {
+            JsonArray arrayIngredients = new JsonArray();
 
-			JsonObject objectResult = new JsonObject();
-			objectResult.addProperty("item", ForgeRegistries.ITEMS.getKey(this.result).toString());
-			if (this.count > 1) {
-				objectResult.addProperty("count", this.count);
-			}
-			json.add("result", objectResult);
+            for (Ingredient ingredient : this.ingredients) {
+                arrayIngredients.add(ingredient.toJson());
+            }
+            json.add("ingredients", arrayIngredients);
 
-			if (this.container != null) {
-				JsonObject objectContainer = new JsonObject();
-				objectContainer.addProperty("item", ForgeRegistries.ITEMS.getKey(this.container).toString());
-				json.add("container", objectContainer);
-			}
-			if (this.experience > 0) {
-				json.addProperty("experience", this.experience);
-			}
-			json.addProperty("cookingtime", this.cookingTime);
-		}
+            JsonObject objectResult = new JsonObject();
+            objectResult.addProperty("item", ForgeRegistries.ITEMS.getKey(this.result).toString());
+            if (this.count > 1) {
+                objectResult.addProperty("count", Integer.valueOf(this.count));
+            }
+            json.add("result", objectResult);
 
-		@Override
-		public ResourceLocation getId() {
-			return this.id;
-		}
+            if (this.container != null) {
+                JsonObject objectContainer = new JsonObject();
+                objectContainer.addProperty("item", ForgeRegistries.ITEMS.getKey(this.container).toString());
+                json.add("container", objectContainer);
+            }
+            if (this.experience > 0.0F) {
+                json.addProperty("experience", Float.valueOf(this.experience));
+            }
+            json.addProperty("cookingtime", Integer.valueOf(this.cookingTime));
+        }
 
-		@Override
-		public RecipeSerializer<?> getType() {
-			return CookingPotRecipe.SERIALIZER;
-		}
+        @Override
+        public ResourceLocation getId() {
+            return this.id;
+        }
 
-		@Nullable
-		@Override
-		public JsonObject serializeAdvancement() {
-			return null;
-		}
+        @Override
+        public RecipeSerializer<?> getType() {
+            return CookingPotRecipe.SERIALIZER;
+        }
 
-		@Nullable
-		@Override
-		public ResourceLocation getAdvancementId() {
-			return null;
-		}
-	}
+        @Nullable
+        @Override
+        public JsonObject serializeAdvancement() {
+            return null;
+        }
+
+        @Nullable
+        @Override
+        public ResourceLocation getAdvancementId() {
+            return null;
+        }
+    }
 }

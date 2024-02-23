@@ -1,0 +1,18 @@
+[
+	{
+		"modid": "farmersrespite",
+		"name": "Farmer's Respite",
+		"description": "An addon created by Umpaz, HoboJoe, and SoyTutta for the Farmer's Delight mod by vectorwing. Attempts to add tea and ways to brew it, as well as some other foods!",
+		"version": "${version}",
+		"mcversion": "${mc_version}",
+		"url": "https://www.curseforge.com/minecraft/mc-mods/farmers-respite",
+		"authorList": [
+			"Umpaz",
+			"HoboJoe",
+			"SoyTutta"
+		],
+		"dependencies": [
+			"farmersdelight"
+		]
+	}
+]
