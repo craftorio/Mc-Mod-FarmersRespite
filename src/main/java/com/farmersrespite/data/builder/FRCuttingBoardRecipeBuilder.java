@@ -139,7 +139,7 @@ public class FRCuttingBoardRecipeBuilder {
 
 
         public RecipeSerializer<?> getType() {
-            return CuttingBoardRecipe.SERIALIZER;
+            return new CuttingBoardRecipe.Serializer();
         }
 
 

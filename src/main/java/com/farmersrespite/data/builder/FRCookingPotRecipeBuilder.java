@@ -144,7 +144,7 @@ public class FRCookingPotRecipeBuilder {
 
         @Override
         public RecipeSerializer<?> getType() {
-            return CookingPotRecipe.SERIALIZER;
+            return new CookingPotRecipe.Serializer();
         }
 
         @Nullable
