@@ -22,6 +22,7 @@ eclipse
 run
 logs
 docsOut
+.DS_Store
 
 # Files from Forge MDK
 forge*changelog.txt

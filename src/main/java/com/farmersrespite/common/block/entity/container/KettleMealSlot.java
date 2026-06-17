@@ -8,19 +8,19 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 
 @ParametersAreNonnullByDefault
-public class KettleMealSlot extends SlotItemHandler
-{
-	public KettleMealSlot(IItemHandler inventoryIn, int index, int xPosition, int yPosition) {
-		super(inventoryIn, index, xPosition, yPosition);
-	}
+public class KettleMealSlot
+        extends SlotItemHandler {
+    public KettleMealSlot(IItemHandler inventoryIn, int index, int xPosition, int yPosition) {
+        super(inventoryIn, index, xPosition, yPosition);
+    }
 
-	@Override
-	public boolean mayPlace(ItemStack stack) {
-		return false;
-	}
 
-	@Override
-	public boolean mayPickup(Player playerIn) {
-		return false;
-	}
+    public boolean mayPlace(ItemStack stack) {
+        return false;
+    }
+
+
+    public boolean mayPickup(Player playerIn) {
+        return false;
+    }
 }

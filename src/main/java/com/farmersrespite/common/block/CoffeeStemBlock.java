@@ -1,11 +1,11 @@
 package com.farmersrespite.common.block;
 
-import java.util.Random;
-
 import com.farmersrespite.common.block.state.WitherRootsUtil;
 import com.farmersrespite.core.FRConfiguration;
 import com.farmersrespite.core.registry.FRBlocks;
 import com.farmersrespite.core.registry.FRItems;
+
+import java.util.Random;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -18,111 +18,112 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.BushBlock;
-import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.PlantType;
 
 public class CoffeeStemBlock extends BushBlock implements BonemealableBlock {
-	   public static final VoxelShape SHAPE = Block.box(5.0D, 0.0D, 5.0D, 11.0D, 16.0D, 11.0D);
+    public static final VoxelShape SHAPE = Block.box(5.0D, 0.0D, 5.0D, 11.0D, 16.0D, 11.0D);
 
-	   public static final IntegerProperty AGE = BlockStateProperties.AGE_2;
-	   public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final IntegerProperty AGE = BlockStateProperties.AGE_2;
+    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-	   public CoffeeStemBlock(Properties properties) {
-	      super(properties);
-	      this.registerDefaultState(this.stateDefinition.any().setValue(AGE, 0).setValue(FACING, Direction.NORTH));
-	   }
+    public CoffeeStemBlock(BlockBehaviour.Properties properties) {
+        super(properties);
+        registerDefaultState(this.stateDefinition.any().setValue(AGE, Integer.valueOf(0)).setValue((Property) FACING, (Comparable) Direction.NORTH));
+    }
 
-	   @Override
-	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-			return SHAPE;
-	   }
 
-	   @Override
-	   public PlantType getPlantType(BlockGetter world, BlockPos pos) {
-	        return net.minecraftforge.common.PlantType.NETHER;
-	    }
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return SHAPE;
+    }
 
-	   @Override
-	   protected boolean mayPlaceOn(BlockState state, BlockGetter pLevel, BlockPos pPos) {
-		      return state.is(Blocks.BASALT) || state.is(Blocks.POLISHED_BASALT) || state.is(Blocks.SMOOTH_BASALT) || state.is(Blocks.MAGMA_BLOCK);
-		   }
 
-	   @Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		      builder.add(AGE, FACING);
-		   }
+    public PlantType getPlantType(BlockGetter world, BlockPos pos) {
+        return PlantType.NETHER;
+    }
 
-	   @Override
-	public ItemStack getCloneItemStack(BlockGetter level, BlockPos pos, BlockState state) {
-			   return new ItemStack(FRItems.COFFEE_BEANS.get());
-		   }
 
-		   @Override
-		public boolean isRandomlyTicking(BlockState state) {
-			      return state.getValue(AGE) < 2;
-			   }
+    protected boolean mayPlaceOn(BlockState state, BlockGetter pLevel, BlockPos pPos) {
+        return (state.is(Blocks.BASALT) || state.is(Blocks.POLISHED_BASALT) || state.is(Blocks.SMOOTH_BASALT) || state.is(Blocks.MAGMA_BLOCK));
+    }
 
-		   @Override
-		public void randomTick(BlockState state, ServerLevel level, BlockPos pos, Random random) {
-				for (BlockPos neighborPos : WitherRootsUtil.randomInSquare(random, pos, 2)) {
-				    BlockState neighborState = level.getBlockState(neighborPos);
-					BlockState witherRootsState = random.nextInt(2) == 0 ? FRBlocks.WITHER_ROOTS.get().defaultBlockState() : FRBlocks.WITHER_ROOTS_PLANT.get().defaultBlockState();
-				      if (net.minecraftforge.common.ForgeHooks.onCropsGrowPre(level, pos, state, random.nextInt(2) == 0)) {
-				    	  if (neighborState.getBlock() instanceof CropBlock) {
-					      level.setBlockAndUpdate(neighborPos, witherRootsState);
-					      performBonemeal(level, random, pos, state);
-				    	  		}
-							else if (level.dimensionType().ultraWarm()) {
-								performBonemeal(level, random, pos, state);
-							}
-					      }
-				    	  net.minecraftforge.common.ForgeHooks.onCropsGrowPost(level, pos, state);
-				   }
-			   }
 
-			@Override
-			public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult result) {
-			      int i = state.getValue(AGE);
-			      boolean flag = i == 2;
-			      if (!flag && player.getItemInHand(handIn).getItem() == Items.BONE_MEAL) {
-			         return InteractionResult.PASS;
-			      } else if (i == 2) {
-			         popResource(world, pos, new ItemStack(FRItems.COFFEE_BERRIES.get(), 1));
-			         world.playSound(player, pos, SoundEvents.SWEET_BERRY_BUSH_PICK_BERRIES, SoundSource.BLOCKS, 1.0F, 0.8F + world.random.nextFloat() * 0.4F);
-			         world.setBlock(pos, state.setValue(AGE, 0), 2);
-			         return InteractionResult.sidedSuccess(world.isClientSide);
-			      } else {
-			         return super.use(state, world, pos, player, handIn, result);
-			      }
-			   }
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(AGE, FACING);
+    }
 
-		@Override
-		public boolean isValidBonemealTarget(BlockGetter level, BlockPos pos, BlockState state, boolean isClient) {
-		      int i = state.getValue(AGE);
-			return FRConfiguration.BONE_MEAL_COFFEE.get() && !(i == 2);
-		}
 
-		@Override
-		public boolean isBonemealSuccess(Level level, Random rand, BlockPos pos, BlockState state) {
-			return true;
-		}
+    public ItemStack getCloneItemStack(BlockGetter level, BlockPos pos, BlockState state) {
+        return new ItemStack(FRItems.COFFEE_BEANS.get());
+    }
 
-		@Override
-		public void performBonemeal(ServerLevel level, Random rand, BlockPos pos, BlockState state) {
-		      	int i = state.getValue(AGE);
-	    	 	level.setBlockAndUpdate(pos, state.setValue(AGE, i + 1));
-			}
-		}
+
+    public boolean isRandomlyTicking(BlockState state) {
+        return (((Integer) state.getValue((Property) AGE)).intValue() < 2);
+    }
+
+
+    public void randomTick(BlockState state, ServerLevel level, BlockPos pos, Random random) {
+        for (BlockPos neighborPos : WitherRootsUtil.randomInSquare(random, pos, 2)) {
+            BlockState neighborState = level.getBlockState(neighborPos);
+            BlockState witherRootsState = (random.nextInt(2) == 0) ? FRBlocks.WITHER_ROOTS.get().defaultBlockState() : FRBlocks.WITHER_ROOTS_PLANT.get().defaultBlockState();
+            if (ForgeHooks.onCropsGrowPre(level, pos, state, (random.nextInt(2) == 0))) {
+                if (neighborState.getBlock() instanceof net.minecraft.world.level.block.CropBlock) {
+                    level.setBlockAndUpdate(neighborPos, witherRootsState);
+                    performBonemeal(level, random, pos, state);
+                } else if (level.dimensionType().ultraWarm()) {
+                    performBonemeal(level, random, pos, state);
+                }
+            }
+            ForgeHooks.onCropsGrowPost(level, pos, state);
+        }
+    }
+
+
+    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult result) {
+        int i = ((Integer) state.getValue((Property) AGE)).intValue();
+        boolean flag = (i == 2);
+        if (!flag && player.getItemInHand(handIn).getItem() == Items.BONE_MEAL)
+            return InteractionResult.PASS;
+        if (i == 2) {
+            popResource(world, pos, new ItemStack(FRItems.COFFEE_BERRIES.get(), 1));
+            world.playSound(player, pos, SoundEvents.SWEET_BERRY_BUSH_PICK_BERRIES, SoundSource.BLOCKS, 1.0F, 0.8F + world.random.nextFloat() * 0.4F);
+            world.setBlock(pos, state.setValue(AGE, Integer.valueOf(0)), 2);
+            return InteractionResult.sidedSuccess(world.isClientSide);
+        }
+        return super.use(state, world, pos, player, handIn, result);
+    }
+
+
+    public boolean isValidBonemealTarget(BlockGetter level, BlockPos pos, BlockState state, boolean isClient) {
+        int i = ((Integer) state.getValue((Property) AGE)).intValue();
+        return (FRConfiguration.BONE_MEAL_COFFEE.get().booleanValue() && i != 2);
+    }
+
+
+    public boolean isBonemealSuccess(Level level, Random rand, BlockPos pos, BlockState state) {
+        return true;
+    }
+
+
+    public void performBonemeal(ServerLevel level, Random rand, BlockPos pos, BlockState state) {
+        int i = ((Integer) state.getValue((Property) AGE)).intValue();
+        level.setBlockAndUpdate(pos, state.setValue(AGE, Integer.valueOf(i + 1)));
+    }
+}

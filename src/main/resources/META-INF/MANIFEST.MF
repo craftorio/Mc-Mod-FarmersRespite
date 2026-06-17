@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Specification-Title: farmersrespite
+Specification-Vendor: umpaz
+Specification-Version: 1
+Implementation-Title: FarmersRespite
+Implementation-Version: 1.18.2-1.0.4
+Implementation-Vendor: umpaz
+Implementation-Timestamp: 2022-07-04T10:22:11-0500
+MixinConfigs: farmersrespite.mixins.json
+
