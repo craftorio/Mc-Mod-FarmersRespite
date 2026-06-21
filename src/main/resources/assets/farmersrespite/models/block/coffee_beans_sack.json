@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "farmersrespite:block/coffee_sack_bottom",
+    "east": "farmersrespite:block/coffee_sack_side",
+    "north": "farmersrespite:block/coffee_sack_side_tied",
+    "particle": "farmersrespite:block/coffee_sack_side",
+    "south": "farmersrespite:block/coffee_sack_side_tied",
+    "up": "farmersrespite:block/coffee_sack_top",
+    "west": "farmersrespite:block/coffee_sack_side"
+  }
+}

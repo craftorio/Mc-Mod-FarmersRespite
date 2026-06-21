@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shapeless",
+  "category": "misc",
   "ingredients": [
     {
       "tag": "forge:cooked_fishes/cod"
@@ -14,7 +15,7 @@
       "tag": "forge:crops/cabbage"
     },
     {
-      "tag": "forge:crops/rice"
+      "item": "farmersdelight:cooked_rice"
     }
   ],
   "result": {

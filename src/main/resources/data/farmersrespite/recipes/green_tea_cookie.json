@@ -1,18 +1,20 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "g": {
+      "item": "farmersrespite:green_tea_leaves"
+    },
+    "w": {
+      "item": "minecraft:wheat"
+    }
+  },
   "pattern": [
     "wgw"
   ],
-  "key": {
-    "w": {
-      "item": "minecraft:wheat"
-    },
-    "g": {
-      "item": "farmersrespite:green_tea_leaves"
-    }
-  },
   "result": {
-    "item": "farmersrespite:green_tea_cookie",
-    "count": 8
-  }
+    "count": 8,
+    "item": "farmersrespite:green_tea_cookie"
+  },
+  "show_notification": true
 }

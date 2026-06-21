@@ -1,0 +1,21 @@
+{
+  "type": "farmersrespite:brewing",
+  "base": {
+    "count": 1000,
+    "fluid": "minecraft:milk"
+  },
+  "cookingtime": 2400,
+  "experience": 0.35,
+  "ingredients": [
+    {
+      "item": "minecraft:cocoa_beans"
+    },
+    {
+      "item": "minecraft:sugar"
+    }
+  ],
+  "result": {
+    "count": 1000,
+    "fluid": "farmersrespite:hot_cocoa"
+  }
+}

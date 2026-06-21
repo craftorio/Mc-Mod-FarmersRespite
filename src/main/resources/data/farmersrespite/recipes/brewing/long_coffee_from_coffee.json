@@ -1,0 +1,18 @@
+{
+  "type": "farmersrespite:brewing",
+  "base": {
+    "count": 1000,
+    "fluid": "farmersrespite:coffee"
+  },
+  "cookingtime": 2400,
+  "experience": 0.35,
+  "ingredients": [
+    {
+      "tag": "forge:milk"
+    }
+  ],
+  "result": {
+    "count": 1000,
+    "fluid": "farmersrespite:long_coffee"
+  }
+}

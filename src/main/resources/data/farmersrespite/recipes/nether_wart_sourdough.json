@@ -1,21 +1,23 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "nn",
-    "rb"
-  ],
+  "category": "misc",
   "key": {
+    "b": {
+      "item": "minecraft:brown_mushroom"
+    },
     "n": {
       "item": "minecraft:nether_wart"
     },
     "r": {
       "item": "minecraft:red_mushroom"
-    },
-    "b": {
-      "item": "minecraft:brown_mushroom"
     }
   },
+  "pattern": [
+    "nn",
+    "rb"
+  ],
   "result": {
     "item": "farmersrespite:nether_wart_sourdough"
-  }
+  },
+  "show_notification": true
 }

@@ -5,13 +5,13 @@
       "item": "minecraft:rose_bush"
     }
   ],
-  "tool": {
-    "tag": "forge:tools/knives"
-  },
   "result": [
     {
-      "item": "farmersrespite:rose_hips",
-      "count": 2
+      "count": 2,
+      "item": "farmersrespite:rose_hips"
     }
-  ]
+  ],
+  "tool": {
+    "tag": "forge:tools/knives"
+  }
 }

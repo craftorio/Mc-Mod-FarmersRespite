@@ -1,5 +1,6 @@
 {
 	"parent": "block/block",
+	"render_type": "minecraft:cutout",
 	"ambientocclusion": false,
 		"textures": {
 		"side": "farmersrespite:block/coffee_bush_side",

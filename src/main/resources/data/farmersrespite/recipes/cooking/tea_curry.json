@@ -1,5 +1,7 @@
 {
   "type": "farmersdelight:cooking",
+  "cookingtime": 200,
+  "experience": 0.35,
   "ingredients": [
     {
       "item": "farmersrespite:yellow_tea_leaves"
@@ -20,9 +22,8 @@
       "tag": "forge:crops/rice"
     }
   ],
+  "recipe_book_tab": "meals",
   "result": {
     "item": "farmersrespite:tea_curry"
-  },
-  "experience": 0.35,
-  "cookingtime": 200
+  }
 }

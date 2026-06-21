@@ -1,6 +1,7 @@
 {
 	"parent": "block/block",
 	"ambientocclusion": false,
+	"render_type": "minecraft:cutout",
 	"textures": {
 		"0": "farmersrespite:block/coffee_stem_base",
 		"1": "farmersrespite:block/coffee_berries_age0",

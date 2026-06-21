@@ -1,7 +1,7 @@
 {
   "required": true,
-  "package": "com.farmersrespite.core.mixin",
-  "compatibilityLevel": "JAVA_16",
+  "package": "umpaz.farmersrespite.common.mixin",
+  "compatibilityLevel": "JAVA_17",
   "refmap": "farmersrespite.refmap.json",
   "mixins": [
   ],

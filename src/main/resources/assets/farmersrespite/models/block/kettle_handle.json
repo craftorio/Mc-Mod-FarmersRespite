@@ -1,5 +1,6 @@
 {
 	"parent": "block/block",
+	"render_type": "minecraft:cutout",
 	"textures": {
 		"0": "farmersrespite:block/kettle",
 		"4": "farmersrespite:block/kettle_handle",

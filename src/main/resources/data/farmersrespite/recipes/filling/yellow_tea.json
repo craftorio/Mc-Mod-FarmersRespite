@@ -1,0 +1,18 @@
+{
+  "type": "create:filling",
+  "ingredients": [
+    {
+      "item": "minecraft:glass_bottle"
+    },
+    {
+      "amount": 250,
+      "fluid": "farmersrespite:yellow_tea",
+      "nbt": {}
+    }
+  ],
+  "results": [
+    {
+      "item": "farmersrespite:yellow_tea"
+    }
+  ]
+}

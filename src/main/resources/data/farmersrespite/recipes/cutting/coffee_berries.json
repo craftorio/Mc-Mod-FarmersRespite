@@ -5,12 +5,12 @@
       "item": "farmersrespite:coffee_berries"
     }
   ],
-  "tool": {
-    "tag": "forge:tools/knives"
-  },
   "result": [
     {
       "item": "farmersrespite:coffee_beans"
     }
-  ]
+  ],
+  "tool": {
+    "tag": "forge:tools/knives"
+  }
 }

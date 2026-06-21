@@ -1,0 +1,17 @@
+{
+  "type": "create:emptying",
+  "ingredients": [
+    {
+      "item": "miners_delight:water_cup"
+    }
+  ],
+  "results": [
+    {
+      "item": "miners_delight:copper_cup"
+    },
+    {
+      "amount": 250,
+      "fluid": "minecraft:water"
+    }
+  ]
+}

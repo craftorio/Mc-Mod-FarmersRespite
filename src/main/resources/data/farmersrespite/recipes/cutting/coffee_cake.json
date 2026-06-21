@@ -5,13 +5,13 @@
       "item": "farmersrespite:coffee_cake"
     }
   ],
-  "tool": {
-    "tag": "forge:tools/knives"
-  },
   "result": [
     {
-      "item": "farmersrespite:coffee_cake_slice",
-      "count": 7
+      "count": 7,
+      "item": "farmersrespite:coffee_cake_slice"
     }
-  ]
+  ],
+  "tool": {
+    "tag": "forge:tools/knives"
+  }
 }

@@ -1,5 +1,7 @@
 {
   "type": "farmersdelight:cooking",
+  "cookingtime": 200,
+  "experience": 0.35,
   "ingredients": [
     {
       "item": "minecraft:blaze_powder"
@@ -20,9 +22,8 @@
       "tag": "forge:raw_beef"
     }
   ],
+  "recipe_book_tab": "meals",
   "result": {
     "item": "farmersrespite:blazing_chili"
-  },
-  "experience": 0.35,
-  "cookingtime": 200
+  }
 }

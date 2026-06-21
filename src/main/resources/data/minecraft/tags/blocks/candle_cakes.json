@@ -1,5 +1,4 @@
 {
-  "replace": false,
   "values": [
     "farmersrespite:candle_coffee_cake",
     "farmersrespite:white_candle_coffee_cake",
@@ -18,6 +17,5 @@
     "farmersrespite:green_candle_coffee_cake",
     "farmersrespite:red_candle_coffee_cake",
     "farmersrespite:black_candle_coffee_cake"
-
   ]
 }

@@ -5,13 +5,13 @@
       "item": "farmersrespite:rose_hip_pie"
     }
   ],
-  "tool": {
-    "tag": "forge:tools/knives"
-  },
   "result": [
     {
-      "item": "farmersrespite:rose_hip_pie_slice",
-      "count": 4
+      "count": 4,
+      "item": "farmersrespite:rose_hip_pie_slice"
     }
-  ]
+  ],
+  "tool": {
+    "tag": "forge:tools/knives"
+  }
 }
