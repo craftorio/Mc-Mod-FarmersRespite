@@ -16,6 +16,7 @@ import net.minecraft.world.level.storage.loot.functions.LootItemConditionalFunct
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import umpaz.farmersrespite.common.block.entity.KettleBlockEntity;
+import umpaz.farmersrespite.common.registry.FRLootFunctions;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -42,9 +43,8 @@ public class FRCopyMealFunction extends LootItemConditionalFunction {
       return stack;
    }
 
-   @Nullable
    public LootItemFunctionType getType() {
-      return null;
+      return FRLootFunctions.COPY_MEAL.get();
    }
 
    public static class Serializer extends net.minecraft.world.level.storage.loot.functions.LootItemConditionalFunction.Serializer<FRCopyMealFunction> {

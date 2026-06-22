@@ -16,6 +16,7 @@ import umpaz.farmersrespite.common.registry.FRCreativeTab;
 import umpaz.farmersrespite.common.registry.FREffects;
 import umpaz.farmersrespite.common.registry.FRFluids;
 import umpaz.farmersrespite.common.registry.FRItems;
+import umpaz.farmersrespite.common.registry.FRLootFunctions;
 import umpaz.farmersrespite.common.registry.FRMenuTypes;
 import umpaz.farmersrespite.common.registry.FRRecipeSerializers;
 import umpaz.farmersrespite.common.registry.FRRecipeTypes;
@@ -41,6 +42,7 @@ public class FarmersRespite {
       FRMenuTypes.MENU_TYPES.register(modEventBus);
       FRRecipeSerializers.RECIPE_SERIALIZERS.register(modEventBus);
       FRRecipeTypes.RECIPE_TYPES.register(modEventBus);
+      FRLootFunctions.LOOT_FUNCTIONS.register(modEventBus);
       FRSounds.SOUNDS.register(modEventBus);
       FRCreativeTab.TABS.register(modEventBus);
       MinecraftForge.EVENT_BUS.register(this);
