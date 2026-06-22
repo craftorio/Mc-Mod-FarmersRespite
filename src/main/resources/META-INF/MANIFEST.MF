@@ -3,7 +3,7 @@ Specification-Title: farmersrespite
 Specification-Vendor: umpaz
 Specification-Version: 1
 Implementation-Title: farmersrespite-forge
-Implementation-Version: 1.20.1-2.1.3
+Implementation-Version: 1.20.1-2.1.2-2
 Implementation-Vendor: umpaz
 Implementation-Timestamp: 2024-07-18T10:59:26-0500
 MixinConfigs: farmersrespite.mixins.json
