@@ -83,7 +83,6 @@ public class KettleBlockEntity extends SyncedBlockEntity implements MenuProvider
    protected final ContainerData kettleData = this.createIntArray();
    private final Object2IntOpenHashMap<ResourceLocation> usedRecipeTracker = new Object2IntOpenHashMap();
    private ResourceLocation lastRecipeID;
-   private boolean checkNewRecipe = true;
 
    public KettleBlockEntity(BlockPos pos, BlockState state) {
       super((BlockEntityType)FRBlockEntityTypes.KETTLE.get(), pos, state);
@@ -329,7 +328,6 @@ public class KettleBlockEntity extends SyncedBlockEntity implements MenuProvider
             )
             .findFirst();
          if (recipe.isPresent()) {
-            this.lastRecipeID = recipe.get().getId();
             return recipe;
          } else {
             return Optional.empty();
@@ -384,25 +382,23 @@ public class KettleBlockEntity extends SyncedBlockEntity implements MenuProvider
          if (recipe instanceof KettleRecipe kettleRecipe
             && recipe.matches(inventoryWrapper, this.level)
             && kettleRecipe.getFluidIn().isFluidEqual(this.fluidTank.getFluid())) {
-            return Optional.of((KettleRecipe)recipe);
+            return Optional.of(kettleRecipe);
          }
       }
 
-      if (this.checkNewRecipe) {
-         Optional<KettleRecipe> recipe = this.level
-            .getRecipeManager()
-            .getAllRecipesFor(FRRecipeTypes.BREWING.get())
-            .stream()
-            .filter(a -> a.matches(inventoryWrapper, this.level) && a.getFluidIn().getFluid().isSame(this.fluidTank.getFluid().getFluid()))
-            .findFirst();
-         if (recipe.isPresent()) {
-            this.lastRecipeID = recipe.get().getId();
-            return recipe;
-         }
+      Optional<KettleRecipe> recipe = this.level
+         .getRecipeManager()
+         .getAllRecipesFor(FRRecipeTypes.BREWING.get())
+         .stream()
+         .filter(a -> a.matches(inventoryWrapper, this.level) && a.getFluidIn().getFluid().isSame(this.fluidTank.getFluid().getFluid()))
+         .findFirst();
+      if (recipe.isPresent()) {
+         this.lastRecipeID = recipe.get().getId();
+      } else {
+         this.lastRecipeID = null;
       }
 
-      this.checkNewRecipe = false;
-      return Optional.empty();
+      return recipe;
    }
 
    public ItemStack getContainer() {
@@ -614,9 +610,25 @@ public class KettleBlockEntity extends SyncedBlockEntity implements MenuProvider
 
    private ItemStackHandler createHandler() {
       return new ItemStackHandler(5) {
+         @Override
+         public int getSlotLimit(int slot) {
+            return slot < 2 ? 1 : super.getSlotLimit(slot);
+         }
+
+         @Nonnull
+         @Override
+         public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
+            ItemStack remaining = super.insertItem(slot, stack, simulate);
+            if (slot < 2 && !remaining.isEmpty()) {
+               remaining = super.insertItem(slot == 0 ? 1 : 0, remaining, simulate);
+            }
+
+            return remaining;
+         }
+
          protected void onContentsChanged(int slot) {
             if (slot >= 0 && slot < 2) {
-               KettleBlockEntity.this.checkNewRecipe = true;
+               KettleBlockEntity.this.lastRecipeID = null;
             }
 
             KettleBlockEntity.this.inventoryChanged();
@@ -628,6 +640,7 @@ public class KettleBlockEntity extends SyncedBlockEntity implements MenuProvider
       return new FluidTank(1000) {
          protected void onContentsChanged() {
             super.onContentsChanged();
+            KettleBlockEntity.this.lastRecipeID = null;
             KettleBlockEntity.this.setChanged();
             KettleBlockEntity.this.inventoryChanged();
          }

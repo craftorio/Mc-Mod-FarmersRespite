@@ -57,7 +57,7 @@ public class KettleMenu extends RecipeBookMenu<RecipeWrapper> {
 
       for (int row = 0; row < 2; row++) {
          for (int column = 0; column < 1; column++) {
-            this.addSlot(new SlotItemHandler(this.inventory, row * 1 + column, inputStartX + column * borderSlotSize, inputStartY + row * borderSlotSize));
+            this.addSlot(new KettleIngredientSlot(this.inventory, row * 1 + column, inputStartX + column * borderSlotSize, inputStartY + row * borderSlotSize));
          }
       }
 

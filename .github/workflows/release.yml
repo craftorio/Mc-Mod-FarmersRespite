@@ -1,7 +1,7 @@
 name: Release
 
 # Tag formats:
-#   release/<mod_version>+<craftorio_version>  e.g. release/2.1.2+2
+#   release/<mod_version>+<craftorio_version>  e.g. release/2.1.2+3
 #   <mod_version>                              e.g. 2.1.2  (craftorio version from gradle.properties)
 on:
   push:
@@ -17,7 +17,7 @@ on:
       craftorio_version:
         description: Craftorio version suffix
         required: true
-        default: "2"
+        default: "3"
 
 concurrency:
   group: release-${{ github.ref }}

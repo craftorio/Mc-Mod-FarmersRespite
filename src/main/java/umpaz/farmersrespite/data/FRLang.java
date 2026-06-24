@@ -48,8 +48,8 @@ public class FRLang extends LanguageProvider {
       this.add("farmersdelight.tooltip.long_gamblers_tea", "50% chance of glowing or wither");
       this.add("farmersdelight.tooltip.strong_gamblers_tea", "50% chance of glowing and night vision or wither");
       this.add("item.farmersrespite.gamblers_tea", "Gambler's Tea");
-      this.add("item.farmersrespite.long_gamblers_tea", "Gambler's Tea");
-      this.add("item.farmersrespite.strong_gamblers_tea", "Gambler's Tea");
+      this.add("item.farmersrespite.long_gamblers_tea", "Long Gambler's Tea");
+      this.add("item.farmersrespite.strong_gamblers_tea", "Strong Gambler's Tea");
       this.add("item.farmersrespite.coffee_cake_slice", "Slice of Coffee Cake");
       this.add("block.farmersrespite.small_tea_bush", "Tea Seeds");
       this.add("block.farmersrespite.coffee_bush", "Coffee Beans");
@@ -84,8 +84,8 @@ public class FRLang extends LanguageProvider {
          this.add(((FluidType)f.get()).getDescriptionId().toString(), name);
       });
       this.add("fluid_type.farmersrespite.gamblers_tea_type", "Gambler's Tea");
-      this.add("fluid_type.farmersrespite.long_gamblers_tea_type", "Gambler's Tea");
-      this.add("fluid_type.farmersrespite.strong_gamblers_tea_type", "Gambler's Tea");
+      this.add("fluid_type.farmersrespite.long_gamblers_tea_type", "Long Gambler's Tea");
+      this.add("fluid_type.farmersrespite.strong_gamblers_tea_type", "Strong Gambler's Tea");
       this.add("generic.unit.millibuckets", "mB");
    }
 
@@ -114,11 +114,13 @@ public class FRLang extends LanguageProvider {
       }
 
       if (name.startsWith("long_")) {
-         name = name.replaceFirst("long_", "");
+         name = "Long " + toTitleCase(name.replaceFirst("long_", ""), "_").replaceAll("Of", "of");
+         return name;
       }
 
       if (name.startsWith("strong_")) {
-         name = name.replaceFirst("strong_", "");
+         name = "Strong " + toTitleCase(name.replaceFirst("strong_", ""), "_").replaceAll("Of", "of");
+         return name;
       }
 
       return name;
