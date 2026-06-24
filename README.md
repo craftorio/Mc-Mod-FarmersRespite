@@ -58,7 +58,7 @@ To publish a release, push a tag:
 git tag 2.1.2-3
 git push origin 2.1.2-3
 
-# also supported: 2.1.2+3, release/2.1.2-3, or plain 2.1.2
+# also supported: release/2.1.2-3, or plain 2.1.2
 ```
 
 The release workflow (`.github/workflows/release.yml`) builds the jar and attaches it to a GitHub Release. You can also trigger it manually from the Actions tab.

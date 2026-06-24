@@ -1,10 +1,8 @@
 name: Release
 
-# Tag formats:
+# Tag formats (use hyphen — GitHub tag filters reject '+' patterns):
 #   <mod_version>-<craftorio_version>          e.g. 2.1.2-3
-#   <mod_version>+<craftorio_version>          e.g. 2.1.2+3
 #   release/<mod_version>-<craftorio_version>  e.g. release/2.1.2-3
-#   release/<mod_version>+<craftorio_version>  e.g. release/2.1.2+3
 #   <mod_version>                              e.g. 2.1.2  (craftorio version from gradle.properties)
 on:
   push:
@@ -12,7 +10,6 @@ on:
       - "release/*"
       - "[0-9]*.[0-9]*.[0-9]*"
       - "[0-9]*.[0-9]*.[0-9]*-*"
-      - "[0-9]*.[0-9]*.[0-9]*+*"
   workflow_dispatch:
     inputs:
       mod_version:
