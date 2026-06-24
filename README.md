@@ -54,13 +54,11 @@ GitHub Actions builds every push and pull request (`.github/workflows/build.yml`
 To publish a release, push a tag:
 
 ```sh
-# craftorio suffix taken from gradle.properties
-git tag 2.1.2
-git push origin 2.1.2
+# matches jar name FarmersRespite-1.20.1-2.1.2-3.jar
+git tag 2.1.2-3
+git push origin 2.1.2-3
 
-# or specify the suffix explicitly
-git tag release/2.1.2+2
-git push origin release/2.1.2+2
+# also supported: 2.1.2+3, release/2.1.2-3, or plain 2.1.2
 ```
 
 The release workflow (`.github/workflows/release.yml`) builds the jar and attaches it to a GitHub Release. You can also trigger it manually from the Actions tab.
