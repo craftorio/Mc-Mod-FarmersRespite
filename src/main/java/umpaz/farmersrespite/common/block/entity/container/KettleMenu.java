@@ -22,10 +22,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
 import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.items.SlotItemHandler;
 import net.minecraftforge.items.wrapper.RecipeWrapper;
 import umpaz.farmersrespite.FarmersRespite;
 import umpaz.farmersrespite.common.block.entity.KettleBlockEntity;
@@ -57,11 +55,13 @@ public class KettleMenu extends RecipeBookMenu<RecipeWrapper> {
 
       for (int row = 0; row < 2; row++) {
          for (int column = 0; column < 1; column++) {
-            this.addSlot(new SlotItemHandler(this.inventory, row * 1 + column, inputStartX + column * borderSlotSize, inputStartY + row * borderSlotSize));
+            this.addSlot(
+               new KettleIngredientSlot(this.tileEntity, this.inventory, row * 1 + column, inputStartX + column * borderSlotSize, inputStartY + row * borderSlotSize)
+            );
          }
       }
 
-      this.addSlot(new SlotItemHandler(this.inventory, 3, 86, 55) {
+      this.addSlot(new KettleContainerSlot(this.tileEntity, this.inventory, 3, 86, 55) {
          @OnlyIn(Dist.CLIENT)
          public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
             return Pair.of(InventoryMenu.BLOCK_ATLAS, KettleMenu.EMPTY_CONTAINER_SLOT_BOTTLE);
@@ -121,14 +121,15 @@ public class KettleMenu extends RecipeBookMenu<RecipeWrapper> {
                return ItemStack.EMPTY;
             }
          } else {
-            boolean isValidContainer = slotStack.is(this.tileEntity.getInventory().getStackInSlot(indexContainerInput).getItem())
-               || this.tileEntity.getPouringRecipe(slotStack.getItem(), this.tileEntity.getFluidTank().getFluid()).isPresent()
-               || slotStack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).isPresent();
-            if (isValidContainer && !this.moveItemStackTo(slotStack, indexContainerInput, indexContainerInput + 1, false)) {
-               return ItemStack.EMPTY;
-            }
-
-            if (!this.moveItemStackTo(slotStack, 0, indexContainerInput, false)) {
+            if (this.tileEntity.isValidBrewingIngredient(slotStack)) {
+               if (!this.moveItemStackTo(slotStack, 0, indexContainerInput, false)) {
+                  return ItemStack.EMPTY;
+               }
+            } else if (this.tileEntity.isValidPouringContainer(slotStack)) {
+               if (!this.moveItemStackTo(slotStack, indexContainerInput, indexContainerInput + 1, false)) {
+                  return ItemStack.EMPTY;
+               }
+            } else {
                return ItemStack.EMPTY;
             }
          }

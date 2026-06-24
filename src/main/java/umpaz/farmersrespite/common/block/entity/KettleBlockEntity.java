@@ -33,6 +33,7 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.RecipeHolder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -335,6 +336,68 @@ public class KettleBlockEntity extends SyncedBlockEntity implements MenuProvider
       }
    }
 
+   public boolean isValidBrewingIngredient(ItemStack stack) {
+      if (this.level == null || stack.isEmpty()) {
+         return false;
+      }
+
+      return this.level
+         .getRecipeManager()
+         .getAllRecipesFor(FRRecipeTypes.BREWING.get())
+         .stream()
+         .flatMap(recipe -> recipe.getIngredients().stream())
+         .anyMatch(ingredient -> ingredient.test(stack));
+   }
+
+   public boolean isValidPouringContainer(ItemStack stack) {
+      if (this.level == null || stack.isEmpty()) {
+         return false;
+      }
+
+      ItemStack existing = this.inventory.getStackInSlot(CONTAINER_SLOT);
+      if (!existing.isEmpty() && ItemStack.isSameItemSameTags(existing, stack)) {
+         return true;
+      }
+
+      return this.level
+         .getRecipeManager()
+         .getAllRecipesFor(FRRecipeTypes.KETTLE_POURING.get())
+         .stream()
+         .anyMatch(recipe -> recipe.getContainer().getItem() == stack.getItem());
+   }
+
+   public int getRequiredIngredientCount(ItemStack stack) {
+      if (this.level == null || stack.isEmpty()) {
+         return 0;
+      }
+
+      FluidStack fluid = this.fluidTank.getFluid();
+      int maxCount = 0;
+
+      for (KettleRecipe recipe : this.level.getRecipeManager().getAllRecipesFor(FRRecipeTypes.BREWING.get())) {
+         if (!fluid.isEmpty() && !recipe.getFluidIn().getFluid().isSame(fluid.getFluid())) {
+            continue;
+         }
+
+         int matchCount = 0;
+         for (Ingredient ingredient : recipe.getIngredients()) {
+            if (ingredient.test(stack)) {
+               matchCount++;
+            }
+         }
+
+         if (matchCount > maxCount) {
+            maxCount = matchCount;
+         }
+      }
+
+      return maxCount;
+   }
+
+   public boolean needsBothIngredientSlots(ItemStack stack) {
+      return this.getRequiredIngredientCount(stack) >= 2;
+   }
+
    public static void animationTick(Level level, BlockPos pos, BlockState state, KettleBlockEntity kettle) {
       boolean i = (Boolean)state.getValue(KettleBlock.LID);
       FluidStack mealStack = kettle.getOutput();
@@ -610,64 +673,33 @@ public class KettleBlockEntity extends SyncedBlockEntity implements MenuProvider
 
    private ItemStackHandler createHandler() {
       return new ItemStackHandler(5) {
+         @Override
+         public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
+            return switch (slot) {
+               case 0, 1 -> KettleBlockEntity.this.isValidBrewingIngredient(stack);
+               case 3 -> KettleBlockEntity.this.isValidPouringContainer(stack);
+               default -> false;
+            };
+         }
+
+         @Override
+         public int getSlotLimit(int slot) {
+            return slot < 2 ? 1 : super.getSlotLimit(slot);
+         }
+
          @Nonnull
          @Override
          public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
-            if (slot >= 2 || stack.isEmpty()) {
-               return super.insertItem(slot, stack, simulate);
-            }
-
-            int otherSlot = slot == 0 ? 1 : 0;
-            ItemStack otherStack = this.getStackInSlot(otherSlot);
-            ItemStack thisStack = this.getStackInSlot(slot);
-
-            if (!otherStack.isEmpty() && !ItemStack.isSameItemSameTags(otherStack, stack)) {
-               return super.insertItem(slot, stack, simulate);
-            }
-
-            if (!thisStack.isEmpty() && !ItemStack.isSameItemSameTags(thisStack, stack)) {
-               return super.insertItem(slot, stack, simulate);
-            }
-
-            int current0 = matchingCount(this.getStackInSlot(0), stack);
-            int current1 = matchingCount(this.getStackInSlot(1), stack);
-            int incoming = stack.getCount();
-            int total = current0 + current1 + incoming;
-            int target0 = (total + 1) / 2;
-            int target1 = total / 2;
-
-            int addTo0 = Math.min(incoming, Math.max(0, Math.min(target0 - current0, this.getSlotLimit(0) - current0)));
-            int addTo1 = Math.min(incoming - addTo0, Math.max(0, Math.min(target1 - current1, this.getSlotLimit(1) - current1)));
-
-            ItemStack remaining = stack.copy();
-
-            if (addTo0 > 0) {
-               ItemStack part = remaining.copy();
-               part.setCount(addTo0);
-               ItemStack notInserted = super.insertItem(0, part, simulate);
-               remaining.shrink(addTo0 - notInserted.getCount());
-            }
-
-            if (addTo1 > 0 && !remaining.isEmpty()) {
-               ItemStack part = remaining.copy();
-               part.setCount(Math.min(addTo1, remaining.getCount()));
-               ItemStack notInserted = super.insertItem(1, part, simulate);
-               remaining.shrink(part.getCount() - notInserted.getCount());
-            }
-
-            if (!remaining.isEmpty()) {
-               remaining = super.insertItem(0, remaining, simulate);
-            }
-
-            if (!remaining.isEmpty()) {
-               remaining = super.insertItem(1, remaining, simulate);
+            ItemStack remaining = super.insertItem(slot, stack, simulate);
+            if (slot < 2 && !remaining.isEmpty() && KettleBlockEntity.this.needsBothIngredientSlots(stack)) {
+               int otherSlot = slot == 0 ? 1 : 0;
+               ItemStack otherStack = this.getStackInSlot(otherSlot);
+               if ((otherStack.isEmpty() || ItemStack.isSameItemSameTags(otherStack, stack)) && this.isItemValid(otherSlot, stack)) {
+                  remaining = super.insertItem(otherSlot, remaining, simulate);
+               }
             }
 
             return remaining;
-         }
-
-         private int matchingCount(ItemStack slotStack, ItemStack stack) {
-            return !slotStack.isEmpty() && ItemStack.isSameItemSameTags(slotStack, stack) ? slotStack.getCount() : 0;
          }
 
          protected void onContentsChanged(int slot) {
