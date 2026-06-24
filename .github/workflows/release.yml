@@ -34,7 +34,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Resolve versions
         id: versions
@@ -96,13 +96,13 @@ jobs:
           echo "craftorio_version=$craftorio_version" >> "$GITHUB_OUTPUT"
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 17
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Build mod
         run: |
@@ -111,7 +111,7 @@ jobs:
             -Pcraftorio_version="${{ steps.versions.outputs.craftorio_version }}"
 
       - name: Publish GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.versions.outputs.release_tag }}
           name: Farmer's Respite ${{ steps.versions.outputs.mod_version }}-${{ steps.versions.outputs.craftorio_version }}
