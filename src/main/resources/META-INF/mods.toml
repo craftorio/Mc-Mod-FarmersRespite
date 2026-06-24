@@ -1,35 +1,36 @@
 modLoader="javafml"
-loaderVersion="[47,)"
-license="MIT License"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
 
 [[mods]]
-modId="farmersrespite"
+modId="${mod_id}"
 version="${version}"
-displayName="Farmer's Respite"
-# updateJSONURL=""
+displayName="${mod_name}"
 logoFile="logo.png"
 logoBlur=false
-credits="Umpaz, Probleyes, SoyTutta"
-authors="Umpaz, Probleyes"
-description="An addon for the Farmer's Delight mod centered around brewing tea and coffee in the kettle"
+credits="${mod_credits}"
+authors="${mod_authors}"
+description='''
+${mod_description}
+'''
 itemIcon="farmersrespite:kettle"
 configBackground="minecraft:textures/block/bricks.png"
 
-[[dependencies.farmersrespite]]
+[[dependencies.${mod_id}]]
     modId="forge"
     mandatory=true
-versionRange="[47.1.0,)"
+    versionRange="${forge_version_range}"
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.farmersrespite]]
+[[dependencies.${mod_id}]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.20,1.21)"
+    versionRange="${minecraft_version_range}"
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.farmersrespite]]
+[[dependencies.${mod_id}]]
     modId="farmersdelight"
     mandatory=true
     versionRange="[1.2.3,)"
