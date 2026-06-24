@@ -610,20 +610,64 @@ public class KettleBlockEntity extends SyncedBlockEntity implements MenuProvider
 
    private ItemStackHandler createHandler() {
       return new ItemStackHandler(5) {
-         @Override
-         public int getSlotLimit(int slot) {
-            return slot < 2 ? 1 : super.getSlotLimit(slot);
-         }
-
          @Nonnull
          @Override
          public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
-            ItemStack remaining = super.insertItem(slot, stack, simulate);
-            if (slot < 2 && !remaining.isEmpty()) {
-               remaining = super.insertItem(slot == 0 ? 1 : 0, remaining, simulate);
+            if (slot >= 2 || stack.isEmpty()) {
+               return super.insertItem(slot, stack, simulate);
+            }
+
+            int otherSlot = slot == 0 ? 1 : 0;
+            ItemStack otherStack = this.getStackInSlot(otherSlot);
+            ItemStack thisStack = this.getStackInSlot(slot);
+
+            if (!otherStack.isEmpty() && !ItemStack.isSameItemSameTags(otherStack, stack)) {
+               return super.insertItem(slot, stack, simulate);
+            }
+
+            if (!thisStack.isEmpty() && !ItemStack.isSameItemSameTags(thisStack, stack)) {
+               return super.insertItem(slot, stack, simulate);
+            }
+
+            int current0 = matchingCount(this.getStackInSlot(0), stack);
+            int current1 = matchingCount(this.getStackInSlot(1), stack);
+            int incoming = stack.getCount();
+            int total = current0 + current1 + incoming;
+            int target0 = (total + 1) / 2;
+            int target1 = total / 2;
+
+            int addTo0 = Math.min(incoming, Math.max(0, Math.min(target0 - current0, this.getSlotLimit(0) - current0)));
+            int addTo1 = Math.min(incoming - addTo0, Math.max(0, Math.min(target1 - current1, this.getSlotLimit(1) - current1)));
+
+            ItemStack remaining = stack.copy();
+
+            if (addTo0 > 0) {
+               ItemStack part = remaining.copy();
+               part.setCount(addTo0);
+               ItemStack notInserted = super.insertItem(0, part, simulate);
+               remaining.shrink(addTo0 - notInserted.getCount());
+            }
+
+            if (addTo1 > 0 && !remaining.isEmpty()) {
+               ItemStack part = remaining.copy();
+               part.setCount(Math.min(addTo1, remaining.getCount()));
+               ItemStack notInserted = super.insertItem(1, part, simulate);
+               remaining.shrink(part.getCount() - notInserted.getCount());
+            }
+
+            if (!remaining.isEmpty()) {
+               remaining = super.insertItem(0, remaining, simulate);
+            }
+
+            if (!remaining.isEmpty()) {
+               remaining = super.insertItem(1, remaining, simulate);
             }
 
             return remaining;
+         }
+
+         private int matchingCount(ItemStack slotStack, ItemStack stack) {
+            return !slotStack.isEmpty() && ItemStack.isSameItemSameTags(slotStack, stack) ? slotStack.getCount() : 0;
          }
 
          protected void onContentsChanged(int slot) {
