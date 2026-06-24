@@ -29,6 +29,10 @@ public class KettlePouringRecipeBuilder {
       new KettlePouringRecipeBuilder(container.asItem().getDefaultInstance(), fluid, amount, output.asItem().getDefaultInstance()).build(consumer);
    }
 
+   public static void kettlePouringRecipe(ItemLike container, Fluid fluid, int amount, ItemStack output, Consumer<FinishedRecipe> consumer) {
+      new KettlePouringRecipeBuilder(container.asItem().getDefaultInstance(), fluid, amount, output.copy()).build(consumer);
+   }
+
    public void build(Consumer<FinishedRecipe> consumerIn) {
       ResourceLocation outputLocation = ForgeRegistries.ITEMS.getKey(this.output.getItem());
       this.build(consumerIn, "farmersrespite:pouring/" + outputLocation.getPath());
@@ -67,7 +71,7 @@ public class KettlePouringRecipeBuilder {
          objectContainer.addProperty("item", ForgeRegistries.ITEMS.getKey(this.container.getItem()).toString());
          json.add("container", objectContainer);
          if (this.container.hasTag()) {
-            objectContainer.addProperty("nbt", this.output.getTag().toString());
+            objectContainer.addProperty("nbt", this.container.getTag().toString());
          }
 
          JsonObject objectContainer1 = new JsonObject();

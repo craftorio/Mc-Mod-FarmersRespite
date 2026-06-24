@@ -15,11 +15,16 @@ import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import umpaz.farmersrespite.common.block.entity.KettleBlockEntity;
 import umpaz.farmersrespite.common.registry.FRBlocks;
 
 @EventBusSubscriber(modid = "farmersrespite", bus = Bus.MOD)
@@ -34,15 +39,24 @@ public class FRDispenseItemBehaviour {
             BlockPos facingPos = source.getPos().relative((Direction)source.getBlockState().getValue(DispenserBlock.FACING));
             BlockState facingState = level.getBlockState(facingPos);
             if (facingState.is((Block)FRBlocks.KETTLE.get()) && PotionUtils.getPotion(stack) == Potions.WATER) {
-               this.setSuccess(true);
-               this.playSound(source);
-               level.playSound((Player)null, pos, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
-               this.playAnimation(source, (Direction)source.getBlockState().getValue(DispenserBlock.FACING));
-               return new ItemStack(Items.GLASS_BOTTLE);
-            } else {
-               this.setSuccess(true);
-               return this.defaultPotionBehaviour.dispense(source, stack);
+               BlockEntity blockEntity = level.getBlockEntity(facingPos);
+               if (blockEntity instanceof KettleBlockEntity kettle) {
+                  var tank = kettle.getFluidTank();
+                  if ((tank.isEmpty() || tank.getFluid().getFluid().isSame(Fluids.WATER))
+                     && tank.getFluidAmount() + KettleBlockEntity.WATER_BOTTLE_AMOUNT <= tank.getCapacity()) {
+                     this.setSuccess(true);
+                     tank.fill(new FluidStack(Fluids.WATER, KettleBlockEntity.WATER_BOTTLE_AMOUNT), FluidAction.EXECUTE);
+                     kettle.setChanged();
+                     this.playSound(source);
+                     level.playSound((Player)null, pos, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
+                     this.playAnimation(source, (Direction)source.getBlockState().getValue(DispenserBlock.FACING));
+                     return new ItemStack(Items.GLASS_BOTTLE);
+                  }
+               }
             }
+
+            this.setSuccess(true);
+            return this.defaultPotionBehaviour.dispense(source, stack);
          }
       };
       DispenserBlock.registerBehavior(Items.POTION, newPotionBehaviour);

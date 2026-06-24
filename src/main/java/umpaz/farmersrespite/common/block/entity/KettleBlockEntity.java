@@ -33,10 +33,14 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.RecipeHolder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -67,6 +71,7 @@ import vectorwing.farmersdelight.common.mixin.accessor.RecipeManagerAccessor;
 import vectorwing.farmersdelight.common.utility.ItemUtils;
 
 public class KettleBlockEntity extends SyncedBlockEntity implements MenuProvider, HeatableBlockEntity, Nameable, RecipeHolder {
+   public static final int WATER_BOTTLE_AMOUNT = 250;
    public static final int DRINK_DISPLAY_SLOT = 2;
    public static final int CONTAINER_SLOT = 3;
    public static final int OUTPUT_SLOT = 4;
@@ -128,12 +133,11 @@ public class KettleBlockEntity extends SyncedBlockEntity implements MenuProvider
    }
 
    public ItemStack fluidExtract(KettleBlockEntity kettle, ItemStack slotIn, ItemStack slotOut) {
-      Item container = slotIn.getItem();
       ItemStack output = ItemStack.EMPTY;
-      Optional<KettlePouringRecipe> recipe = kettle.getPouringRecipe(container, kettle.fluidTank.getFluid());
+      Optional<KettlePouringRecipe> recipe = kettle.getPouringRecipe(slotIn, kettle.fluidTank.getFluid());
       boolean changed = false;
       if (recipe.isPresent() && (kettle.fluidTank.isEmpty() || kettle.fluidTank.getFluid().getFluid().isSame(recipe.get().getFluid()))) {
-         if (container.equals(recipe.get().getContainer().getItem()) && recipe.get().getAmount() <= kettle.fluidTank.getFluidAmount()) {
+         if (matchesPouringContainer(slotIn, recipe.get()) && recipe.get().getAmount() <= kettle.fluidTank.getFluidAmount()) {
             for (;
                kettle.fluidTank.getFluidAmount() >= recipe.get().getAmount()
                   && (
@@ -165,7 +169,7 @@ public class KettleBlockEntity extends SyncedBlockEntity implements MenuProvider
 
                this.setChanged();
             }
-         } else if (container.equals(recipe.get().getOutput().getItem())
+         } else if (matchesPouringOutput(slotIn, recipe.get())
             && kettle.fluidTank.getFluidAmount() + recipe.get().getAmount() <= kettle.fluidTank.getCapacity()) {
             for (;
                kettle.fluidTank.getFluidAmount() + recipe.get().getAmount() <= kettle.fluidTank.getCapacity()
@@ -316,24 +320,36 @@ public class KettleBlockEntity extends SyncedBlockEntity implements MenuProvider
       }
    }
 
-   public Optional<KettlePouringRecipe> getPouringRecipe(Item slot, FluidStack fluid) {
-      if (this.level == null) {
+   public Optional<KettlePouringRecipe> getPouringRecipe(ItemStack stack, FluidStack fluid) {
+      if (this.level == null || stack.isEmpty()) {
          return Optional.empty();
-      } else {
-         Optional<KettlePouringRecipe> recipe = this.level
-            .getRecipeManager()
-            .getAllRecipesFor(FRRecipeTypes.KETTLE_POURING.get())
-            .stream()
-            .filter(
-               r -> (r.getContainer().getItem() == slot || r.getOutput().getItem() == slot) && (fluid.isEmpty() || r.getFluid().isSame(fluid.getFluid()))
-            )
-            .findFirst();
-         if (recipe.isPresent()) {
-            return recipe;
-         } else {
-            return Optional.empty();
-         }
       }
+
+      return this.level
+         .getRecipeManager()
+         .getAllRecipesFor(FRRecipeTypes.KETTLE_POURING.get())
+         .stream()
+         .filter(
+            recipe -> (fluid.isEmpty() || recipe.getFluid().isSame(fluid.getFluid()))
+               && (matchesPouringContainer(stack, recipe) || matchesPouringOutput(stack, recipe))
+         )
+         .findFirst();
+   }
+
+   public static boolean isWaterBottle(ItemStack stack) {
+      return stack.is(Items.POTION) && PotionUtils.getPotion(stack) == Potions.WATER;
+   }
+
+   private static boolean matchesPouringContainer(ItemStack stack, KettlePouringRecipe recipe) {
+      return ItemStack.isSameItemSameTags(stack, recipe.getContainer());
+   }
+
+   private static boolean matchesPouringOutput(ItemStack stack, KettlePouringRecipe recipe) {
+      if (isWaterBottle(stack)) {
+         return recipe.getFluid().isSame(Fluids.WATER);
+      }
+
+      return ItemStack.isSameItemSameTags(stack, recipe.getOutput());
    }
 
    public boolean isValidBrewingIngredient(ItemStack stack) {
@@ -352,6 +368,10 @@ public class KettleBlockEntity extends SyncedBlockEntity implements MenuProvider
    public boolean isValidPouringContainer(ItemStack stack) {
       if (this.level == null || stack.isEmpty()) {
          return false;
+      }
+
+      if (isWaterBottle(stack)) {
+         return true;
       }
 
       ItemStack existing = this.inventory.getStackInSlot(CONTAINER_SLOT);
