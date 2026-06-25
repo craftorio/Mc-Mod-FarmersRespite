@@ -122,9 +122,12 @@ public class KettleMenu extends RecipeBookMenu<RecipeWrapper> {
             }
          } else {
             if (this.tileEntity.isValidBrewingIngredient(slotStack)) {
-               if (!this.moveItemStackTo(slotStack, 0, indexContainerInput, false)) {
+               ItemStack remaining = this.insertIngredient(slotStack);
+               if (remaining.getCount() == slotStack.getCount()) {
                   return ItemStack.EMPTY;
                }
+
+               slotStack.setCount(remaining.getCount());
             } else if (this.tileEntity.isValidPouringContainer(slotStack)) {
                if (!this.moveItemStackTo(slotStack, indexContainerInput, indexContainerInput + 1, false)) {
                   return ItemStack.EMPTY;
@@ -148,6 +151,18 @@ public class KettleMenu extends RecipeBookMenu<RecipeWrapper> {
       }
 
       return slotStackCopy;
+   }
+
+   private ItemStack insertIngredient(ItemStack stack) {
+      ItemStack remaining = this.inventory.insertItem(0, stack, false);
+      if (!remaining.isEmpty() && remaining.getCount() == stack.getCount()) {
+         ItemStack slot0 = this.inventory.getStackInSlot(0);
+         if (slot0.isEmpty() || !ItemStack.isSameItemSameTags(slot0, stack)) {
+            remaining = this.inventory.insertItem(1, remaining, false);
+         }
+      }
+
+      return remaining;
    }
 
    @OnlyIn(Dist.CLIENT)

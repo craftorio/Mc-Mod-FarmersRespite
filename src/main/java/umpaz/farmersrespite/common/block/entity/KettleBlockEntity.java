@@ -22,7 +22,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.Nameable;
 import net.minecraft.world.entity.ExperienceOrb;
@@ -76,7 +75,6 @@ public class KettleBlockEntity extends SyncedBlockEntity implements MenuProvider
    public static final int CONTAINER_SLOT = 3;
    public static final int OUTPUT_SLOT = 4;
    public static final int INVENTORY_SIZE = 5;
-   public static boolean WHISTLE = false;
    private final ItemStackHandler inventory = this.createHandler();
    private final LazyOptional<IItemHandler> inputHandler = LazyOptional.of(() -> new KettleItemHandler(this.inventory, Direction.UP));
    private final LazyOptional<IItemHandler> outputHandler = LazyOptional.of(() -> new KettleItemHandler(this.inventory, Direction.DOWN));
@@ -374,6 +372,10 @@ public class KettleBlockEntity extends SyncedBlockEntity implements MenuProvider
          return true;
       }
 
+      if (stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).isPresent()) {
+         return true;
+      }
+
       ItemStack existing = this.inventory.getStackInSlot(CONTAINER_SLOT);
       if (!existing.isEmpty() && ItemStack.isSameItemSameTags(existing, stack)) {
          return true;
@@ -383,7 +385,7 @@ public class KettleBlockEntity extends SyncedBlockEntity implements MenuProvider
          .getRecipeManager()
          .getAllRecipesFor(FRRecipeTypes.KETTLE_POURING.get())
          .stream()
-         .anyMatch(recipe -> recipe.getContainer().getItem() == stack.getItem());
+         .anyMatch(recipe -> matchesPouringContainer(stack, recipe) || matchesPouringOutput(stack, recipe));
    }
 
    public int getRequiredIngredientCount(ItemStack stack) {
@@ -434,23 +436,21 @@ public class KettleBlockEntity extends SyncedBlockEntity implements MenuProvider
          if (level.random.nextInt(5) == 0) {
             level.addParticle(ParticleTypes.EFFECT, d0 + d5, d1 + d6, d2 + d7, 0.0, 0.0, 0.0);
          }
-
-         if (WHISTLE) {
-            whistleNoise(level, pos, state, kettle);
-            WHISTLE = false;
-         }
       }
    }
 
-   public static void whistleNoise(Level level, BlockPos pos, BlockState state, KettleBlockEntity kettle) {
-      boolean i = (Boolean)state.getValue(KettleBlock.LID);
-      if (kettle.isHeated() && i) {
-         double x = pos.getX() + 0.5;
-         double y = pos.getY();
-         double z = pos.getZ() + 0.5;
-         float pitch = RandomSource.create().nextFloat() * 0.2F + 0.9F;
-         level.playLocalSound(x, y, z, (SoundEvent)FRSounds.BLOCK_KETTLE_WHISTLE.get(), SoundSource.BLOCKS, 0.25F, pitch, false);
+   private void playWhistleSound() {
+      if (this.level == null || this.level.isClientSide()) {
+         return;
       }
+
+      BlockState state = this.getBlockState();
+      if (!(Boolean)state.getValue(KettleBlock.LID) || !this.isHeated()) {
+         return;
+      }
+
+      float pitch = this.level.random.nextFloat() * 0.2F + 0.9F;
+      this.level.playSound(null, this.worldPosition, (SoundEvent)FRSounds.BLOCK_KETTLE_WHISTLE.get(), SoundSource.BLOCKS, 0.25F, pitch);
    }
 
    private Optional<KettleRecipe> getMatchingRecipe(RecipeWrapper inventoryWrapper) {
@@ -535,7 +535,7 @@ public class KettleBlockEntity extends SyncedBlockEntity implements MenuProvider
             kettle.level.playLocalSound(kettle.getBlockPos(), SoundEvents.BREWING_STAND_BREW, SoundSource.BLOCKS, 1.0F, 0.8F, true);
          }
 
-         WHISTLE = true;
+         kettle.playWhistleSound();
       }
 
       kettle.setRecipeUsed(recipe);
@@ -698,6 +698,7 @@ public class KettleBlockEntity extends SyncedBlockEntity implements MenuProvider
             return switch (slot) {
                case 0, 1 -> KettleBlockEntity.this.isValidBrewingIngredient(stack);
                case 3 -> KettleBlockEntity.this.isValidPouringContainer(stack);
+               case 4 -> true;
                default -> false;
             };
          }
