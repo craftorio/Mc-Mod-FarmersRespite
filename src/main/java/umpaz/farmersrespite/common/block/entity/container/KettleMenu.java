@@ -154,8 +154,9 @@ public class KettleMenu extends RecipeBookMenu<RecipeWrapper> {
    }
 
    private ItemStack insertIngredient(ItemStack stack) {
-      ItemStack remaining = this.inventory.insertItem(0, stack, false);
-      if (!remaining.isEmpty() && remaining.getCount() == stack.getCount()) {
+      ItemStack toInsert = stack.copy();
+      ItemStack remaining = this.inventory.insertItem(0, toInsert, false);
+      if (!remaining.isEmpty() && remaining.getCount() == toInsert.getCount()) {
          ItemStack slot0 = this.inventory.getStackInSlot(0);
          if (slot0.isEmpty() || !ItemStack.isSameItemSameTags(slot0, stack)) {
             remaining = this.inventory.insertItem(1, remaining, false);
